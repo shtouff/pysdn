@@ -111,7 +111,7 @@ def brasse_le_plus_4a(matrix, uplinks):
     p2 = PatchPanel(connector=Port.LC, place=place, u=5, name='', size=24)
     p3 = PatchPanel(connector=Port.LC, place=place, u=7, name='', size=24)
 
-    desks = 43
+    desks = 57
     agg_ports = available_ports(need=desks, devices=(s1, s2, s3, ))
     patch_ports = available_ports(need=desks, devices=(p1, p2, p3, ))
 
@@ -154,7 +154,7 @@ def brasse_le_plus_4b(matrix, uplinks):
     p1 = PatchPanel(connector=Port.LC, place=place, u=3, name='', size=24)
     p2 = PatchPanel(connector=Port.LC, place=place, u=5, name='', size=24)
 
-    desks = 43
+    desks = 30
     agg_ports = available_ports(need=desks, devices=(s1, s2, ))
     patch_ports = available_ports(need=desks, devices=(p1, p2, ))
 
