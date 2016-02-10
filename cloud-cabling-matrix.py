@@ -28,7 +28,7 @@ def brasse_le_moins_2(matrix, p1, po1, po2):
     # interco mikrotik
     r1.cards[0].ports[7].connect(r2.cards[0].ports[7])
 
-    # external
+    # operators
     r1.cards[0].ports[0].connect(po1.ports[0])
     r2.cards[0].ports[0].connect(po2.ports[0])
 
