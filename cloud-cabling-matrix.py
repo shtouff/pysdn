@@ -69,13 +69,11 @@ def brasse_le_plus_3(matrix, uplinks):
         agg_ports[i].connect(patch_ports[i])
 
     # patch wifi switch
-    #sw1 = Switch(place='ALPHA R+3', u=17, name='wifi')
-    #sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
-    #agg_ports = available_ports( (s1, s2, s3, s4, ) )
-    #if len(agg_ports < 1):
-    #    raise Exception('insufficient number of available ports')
-    #sw1.cards[0].ports[23].connector = Port.LC
-    #sw1.cards[0].ports[23].connect(agg
+    sw1 = Switch(place='ALPHA R+3', u=17, name='wifi')
+    sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
+    agg_ports = available_ports(need=1, devices=(s1, s2, s3, s4, ) )
+    sw1.cards[0].ports[23].connector = Port.LC
+    sw1.cards[0].ports[23].connect(agg_ports[-1])
 
     #pc1 = PatchPanel(connector=Port.RJ45, place='ALPHA R+3', u=20, name='tiroir cuivre', size=24)
 
@@ -83,6 +81,7 @@ def brasse_le_plus_3(matrix, uplinks):
     matrix.add_switch(s2)
     matrix.add_switch(s3)
     matrix.add_switch(s4)
+    matrix.add_switch(sw1)
 
 def brasse_le_plus_4a(matrix, uplinks):
     s1 = Switch(place='BETA R+4a', u=9, name='1')
