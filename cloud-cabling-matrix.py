@@ -75,7 +75,13 @@ def brasse_le_plus_3(matrix, uplinks):
     sw1.cards[0].ports[23].connector = Port.LC
     sw1.cards[0].ports[23].connect(agg_ports[-1])
 
-    #pc1 = PatchPanel(connector=Port.RJ45, place='ALPHA R+3', u=20, name='tiroir cuivre', size=24)
+    pc1 = PatchPanel(connector=Port.RJ45, place='ALPHA R+3', u=20, name='tiroir cuivre', size=24)
+    wifis = 23
+    agg_ports = available_ports(need=wifis, devices=(sw1, ))
+    patch_ports = available_ports(need=wifis, devices=(pc1, ))
+
+    for i in range(0, wifis):
+        agg_ports[i].connect(patch_ports[i])
 
     matrix.add_switch(s1)
     matrix.add_switch(s2)
