@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, AlreadyConnected, NotConnected, SelfConnect, AlreadyXConnected, NotXConnected, SelfXConnect
+from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, InsufficientAvailablePorts
+from pysdn.exceptions import AlreadyConnected, NotConnected, SelfConnect
+from pysdn.exceptions import AlreadyXConnected, NotXConnected, SelfXConnect
 
-def available_ports(devices):
+def available_ports(need, devices):
 
     avail = []
     for device in devices:
@@ -15,6 +17,9 @@ def available_ports(devices):
             for port in device.ports:
                 if port.p_port is None:
                     avail.append(port)
+
+    if len(avail) < need:
+        raise InsufficientAvailablePorts()
 
     return avail
 

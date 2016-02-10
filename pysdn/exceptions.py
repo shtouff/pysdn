@@ -22,3 +22,5 @@ class NotXConnected(Exception):
 class SelfXConnect(Exception):
     pass
 
+class InsufficientAvailablePorts(Exception):
+    pass
