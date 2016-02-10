@@ -5,8 +5,8 @@ from pysdn.utils import CablingMatrix
 
 m = CablingMatrix()
 
-po1 = PatchPanel(connector=Port.SC, place='BETA R-2 left', u=1, name='tiroir operateur', size=12)
-po2 = PatchPanel(connector=Port.SC, place='BETA R-2 left', u=2, name='tiroir operateur', size=12)
+po1 = PatchPanel(connector=Port.SC, place='BETA R-2 left', u=1, name='tiroir operateur1', size=12)
+po2 = PatchPanel(connector=Port.SC, place='BETA R-2 left', u=2, name='tiroir operateur2', size=12)
 p1 = PatchPanel(connector=Port.LC, place='BETA R-2 right', u=3, name='tiroir2', size=24)
 p2 = PatchPanel(connector=Port.LC, place='ALPHA R+3',u=1, name='tiroir1', size=6)
 p3 = PatchPanel(connector=Port.LC, place='ALPHA R+4a', u=1, name='tiroir1', size=6)
@@ -38,7 +38,8 @@ def brasse_le_moins_2():
     r1.cards[0].ports[7].connect(r2.cards[0].ports[7])
 
     # external
-    #r1.cards[0].ports[0].connect(po1.ports[0])
+    r1.cards[0].ports[0].connect(po1.ports[0])
+    r2.cards[0].ports[0].connect(po2.ports[0])
 
     # add devices to matrix
     m.add_switch(s1)

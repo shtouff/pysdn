@@ -22,12 +22,15 @@ class CablingMatrix(object):
 
         portA = port
         panelA = portA.owner
-        portB = portA.x_port
-        panelB = portB.owner
-
         print(';{};{};{};{}'.format(panelA.place, panelA.u, panelA.name, portA), end='')
         print(';<==>', end='')
-        print(';{};{};{};{}'.format(panelB.place, panelB.u, panelB.name, portB), end='')
+
+        portB = portA.x_port
+        if portB is None:
+            print(';;;;', end='')
+        else:
+            panelB = portB.owner
+            print(';{};{};{};{}'.format(panelB.place, panelB.u, panelB.name, portB), end='')
 
     def dump_switch_port(self, port):
         if port in self.seenports:
@@ -43,7 +46,12 @@ class CablingMatrix(object):
 
         if isinstance(portA.p_port, PatchPort):
             self.dump_patch_port(portA.p_port)
-            portB = portA.p_port.x_port.p_port
+
+            if portA.p_port.x_port is None:
+                print(';;;;')
+                return
+            else:
+                portB = portA.p_port.x_port.p_port
         else:
             print(';;;;', end='')
             print(';<==>', end='')
