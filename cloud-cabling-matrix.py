@@ -91,7 +91,7 @@ def brasse_le_plus_3(matrix, uplinks):
     matrix.add_switch(sw1)
 
 def brasse_le_plus_4a(matrix, uplinks):
-    place = 'BETA R+4a'
+    place = 'ALPHA R+4a'
     s1 = Switch(place=place, u=9, name='1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
     s2 = Switch(place=place, u=11, name='2')
@@ -139,7 +139,7 @@ def brasse_le_plus_4a(matrix, uplinks):
     matrix.add_switch(sw1)
 
 def brasse_le_plus_4b(matrix, uplinks):
-    place = 'BETA R+4b'
+    place = 'ALPHA R+4b'
     s1 = Switch(place=place, u=7, name='1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
     s2 = Switch(place=place, u=9, name='2')
