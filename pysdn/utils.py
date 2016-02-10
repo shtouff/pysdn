@@ -1,4 +1,5 @@
-from pysdn.devices import Switch, Port, PatchPort
+from pysdn.devices import Switch, Port, PatchPort, PatchPanel
+from pysdn.exceptions import InsufficientAvailablePorts
 
 class CablingMatrix(object):
 
@@ -67,4 +68,23 @@ class CablingMatrix(object):
         for card in switch.cards:
             for port in card.ports:
                 self.dump_switch_port(port)
+
+def available_ports(need, devices):
+
+    avail = []
+    for device in devices:
+        if isinstance(device, Switch):
+            for card in device.cards:
+                for port in card.ports:
+                    if port.p_port is None:
+                        avail.append(port)
+        elif isinstance(device, PatchPanel):
+            for port in device.ports:
+                if port.p_port is None:
+                    avail.append(port)
+
+    if len(avail) < need:
+        raise InsufficientAvailablePorts()
+
+    return avail
 

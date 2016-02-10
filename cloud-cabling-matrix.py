@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-from pysdn.devices import PatchPanel, Switch, LineCard, Port, available_ports
-from pysdn.exceptions import AlreadyConnected, AlreadyXConnected
-from pysdn.utils import CablingMatrix
+from pysdn.devices import PatchPanel, Switch, LineCard, Port
+from pysdn.utils import CablingMatrix, available_ports
 
 def brasse_le_moins_2(matrix, p1, po1, po2):
     s1 = Switch(place='BETA R-2 right', u=10, name='sw-agg-1')

@@ -4,25 +4,6 @@ from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, Insuffici
 from pysdn.exceptions import AlreadyConnected, NotConnected, SelfConnect
 from pysdn.exceptions import AlreadyXConnected, NotXConnected, SelfXConnect
 
-def available_ports(need, devices):
-
-    avail = []
-    for device in devices:
-        if isinstance(device, Switch):
-            for card in device.cards:
-                for port in card.ports:
-                    if port.p_port is None:
-                        avail.append(port)
-        elif isinstance(device, PatchPanel):
-            for port in device.ports:
-                if port.p_port is None:
-                    avail.append(port)
-
-    if len(avail) < need:
-        raise InsufficientAvailablePorts()
-
-    return avail
-
 class Port(object):
 
     LC = 100
