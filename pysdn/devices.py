@@ -2,6 +2,22 @@
 
 from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, AlreadyConnected, NotConnected, SelfConnect, AlreadyXConnected, NotXConnected, SelfXConnect
 
+def available_ports(devices):
+
+    avail = []
+    for device in devices:
+        if isinstance(device, Switch):
+            for card in device.cards:
+                for port in card.ports:
+                    if port.p_port is None:
+                        avail.append(port)
+        elif isinstance(device, PatchPanel):
+            for port in device.ports:
+                if port.p_port is None:
+                    avail.append(port)
+
+    return avail
+
 class Port(object):
 
     LC = 100

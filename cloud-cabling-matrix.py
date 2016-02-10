@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from pysdn.devices import PatchPanel, Switch, LineCard, Port
+from pysdn.devices import PatchPanel, Switch, LineCard, Port, available_ports
+from pysdn.exceptions import AlreadyConnected, AlreadyXConnected
 from pysdn.utils import CablingMatrix
 
 def brasse_le_moins_2(matrix, p1, po1, po2):
@@ -55,10 +56,25 @@ def brasse_le_plus_3(matrix, uplinks):
     s3.cards[0].ports[23].connect(uplinks[4])
     s4.cards[0].ports[23].connect(uplinks[5])
 
+    p1 = PatchPanel(connector=Port.LC, place='ALPHA R+3', u=3, name='', size=24)
+    p2 = PatchPanel(connector=Port.LC, place='ALPHA R+3', u=5, name='', size=24)
+    p3 = PatchPanel(connector=Port.LC, place='ALPHA R+3', u=7, name='', size=24)
+
+    desks = 68
+    agg_ports = available_ports( (s1, s2, s3, s4, ) )
+    patch_ports = available_ports( (p1, p2, p3, ) )
+
+    if len(agg_ports) < desks or len(patch_ports) < desks:
+        raise Exception('insufficient number of available ports')
+
+    for i in range(0, desks):
+        agg_ports[i].connect(patch_ports[i])
+
     matrix.add_switch(s1)
     matrix.add_switch(s2)
     matrix.add_switch(s3)
     matrix.add_switch(s4)
+
 
 def brasse_le_plus_4a(matrix, uplinks):
     s1 = Switch(place='BETA R+4a', u=9, name='1')
