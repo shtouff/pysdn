@@ -62,8 +62,8 @@ def brasse_le_plus_3(matrix, uplinks):
     p3 = PatchPanel(connector=Port.LC, place='ALPHA R+3', u=7, name='', size=24)
 
     desks = 68
-    agg_ports = available_ports( need=desks, devices=(s1, s2, s3, s4, ) )
-    patch_ports = available_ports( need=desks, devices=(p1, p2, p3, ) )
+    agg_ports = available_ports(need=desks, devices=(s1, s2, s3, s4, ))
+    patch_ports = available_ports(need=desks, devices=(p1, p2, p3, ))
 
     for i in range(0, desks):
         agg_ports[i].connect(patch_ports[i])
@@ -71,7 +71,7 @@ def brasse_le_plus_3(matrix, uplinks):
     # patch wifi switch
     sw1 = Switch(place='ALPHA R+3', u=17, name='wifi')
     sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
-    agg_ports = available_ports(need=1, devices=(s1, s2, s3, s4, ) )
+    agg_ports = available_ports(need=1, devices=(s1, s2, s3, s4, ))
     sw1.cards[0].ports[23].connector = Port.LC
     sw1.cards[0].ports[23].connect(agg_ports[-1])
 
