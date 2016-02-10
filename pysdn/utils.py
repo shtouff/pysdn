@@ -22,7 +22,7 @@ class CablingMatrix(object):
 
         portA = port
         panelA = portA.owner
-        print(';{};{};{};{}'.format(panelA.place, panelA.u, panelA.name, portA), end='')
+        print(';{};U{};{};{}'.format(panelA.place, panelA.u, panelA.name, portA), end='')
         print(';<==>', end='')
 
         portB = portA.x_port
@@ -30,7 +30,7 @@ class CablingMatrix(object):
             print(';;;;', end='')
         else:
             panelB = portB.owner
-            print(';{};{};{};{}'.format(panelB.place, panelB.u, panelB.name, portB), end='')
+            print(';{};U{};{};{}'.format(panelB.place, panelB.u, panelB.name, portB), end='')
 
     def dump_switch_port(self, port):
         if port in self.seenports:
@@ -41,7 +41,7 @@ class CablingMatrix(object):
         portA = port
         cardA = portA.owner
         switchA = cardA.owner
-        print('{};{};{};{}{}'.format(switchA.place, switchA.u, switchA.name, cardA, portA), end='')
+        print('{};U{};{};{}{}'.format(switchA.place, switchA.u, switchA.name, cardA, portA), end='')
         self.seenports.append(portA)
 
         if isinstance(portA.p_port, PatchPort):
@@ -60,7 +60,7 @@ class CablingMatrix(object):
 
         cardB = portB.owner
         switchB = cardB.owner
-        print(';{};{};{};{}{}'.format(switchB.place, switchB.u, switchB.name, cardB, portB))
+        print(';{};U{};{};{}{}'.format(switchB.place, switchB.u, switchB.name, cardB, portB))
         self.seenports.append(portB)
 
     def dump_switch(self, switch):
