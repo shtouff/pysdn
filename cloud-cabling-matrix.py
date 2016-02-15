@@ -180,17 +180,22 @@ def main():
 
     po1 = PatchPanel(connector=Port.SC, place='BETA R-2 left', u=1, name='tiroir operateur1', size=12)
     po2 = PatchPanel(connector=Port.SC, place='BETA R-2 left', u=2, name='tiroir operateur2', size=12)
-    p1 = PatchPanel(connector=Port.LC, place='BETA R-2 right', u=3, name='tiroir2', size=24)
+
+    # basement / -2
+    pb1 = PatchPanel(connector=Port.LC, place='BETA R-2 right', u=3, name='tiroir2', size=24)
+
+    # floors
     p2 = PatchPanel(connector=Port.LC, place='ALPHA R+3',u=1, name='tiroir1', size=6)
     p3 = PatchPanel(connector=Port.LC, place='ALPHA R+4a', u=1, name='tiroir1', size=6)
     p4 = PatchPanel(connector=Port.LC, place='ALPHA R+4b', u=1, name='tiroir1', size=6)
 
     # cross-co
-    p1.multi_x_connect(position=1, peer=p2, peerPosition=1, size=6)
-    p1.multi_x_connect(position=7, peer=p3, peerPosition=1, size=6)
-    p1.multi_x_connect(position=13, peer=p4, peerPosition=1, size=6)
+    pb1.multi_x_connect(position=1, peer=p2, peerPosition=1, size=6)
+    pb1.multi_x_connect(position=7, peer=p3, peerPosition=1, size=6)
+    pb1.multi_x_connect(position=13, peer=p4, peerPosition=1, size=6)
 
-    brasse_le_moins_2(matrix=m, po1=po1, po2=po2, downlinks=(p1.ports[0:6] + p1.ports[6:12] + p1.ports[12:16]))
+    # brassage
+    brasse_le_moins_2(matrix=m, po1=po1, po2=po2, downlinks=(pb1.ports[0:6] + pb1.ports[6:12] + pb1.ports[12:16]))
     brasse_le_plus_3(matrix=m, uplinks=p2.ports)
     brasse_le_plus_4a(matrix=m, uplinks=p3.ports)
     brasse_le_plus_4b(matrix=m, uplinks=p4.ports)
