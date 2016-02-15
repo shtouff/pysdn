@@ -46,23 +46,21 @@ def brasse_le_plus_3(matrix, uplinks):
     s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
     s3 = Switch(place=place, u=13, name='3')
     s3.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s4 = Switch(place=place, u=15, name='4')
-    s4.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
 
     s1.cards[0].ports[22].connect(uplinks[0])
     s1.cards[0].ports[23].connect(uplinks[1])
     s2.cards[0].ports[22].connect(uplinks[2])
     s2.cards[0].ports[23].connect(uplinks[3])
-    s3.cards[0].ports[23].connect(uplinks[4])
-    s4.cards[0].ports[23].connect(uplinks[5])
+    s3.cards[0].ports[22].connect(uplinks[4])
+    s3.cards[0].ports[23].connect(uplinks[5])
 
     # patch desktop switches
     p1 = PatchPanel(connector=Port.LC, place=place, u=3, name='', size=24)
     p2 = PatchPanel(connector=Port.LC, place=place, u=5, name='', size=24)
     p3 = PatchPanel(connector=Port.LC, place=place, u=7, name='', size=24)
 
-    desks = 68
-    agg_ports = available_ports(need=desks, devices=(s1, s2, s3, s4, ))
+    desks = 65
+    agg_ports = available_ports(need=desks, devices=(s1, s2, s3, ))
     patch_ports = available_ports(need=desks, devices=(p1, p2, p3, ))
 
     for i in range(0, desks):
@@ -71,7 +69,7 @@ def brasse_le_plus_3(matrix, uplinks):
     # patch wifi switch
     sw1 = Switch(place=place, u=17, name='wifi')
     sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
-    agg_ports = available_ports(need=1, devices=(s1, s2, s3, s4, ))
+    agg_ports = available_ports(need=1, devices=(s1, s2, s3, ))
     sw1.cards[0].ports[23].connector = Port.LC
     sw1.cards[0].ports[23].connect(agg_ports[-1])
 
@@ -86,7 +84,6 @@ def brasse_le_plus_3(matrix, uplinks):
     matrix.add_switch(s1)
     matrix.add_switch(s2)
     matrix.add_switch(s3)
-    matrix.add_switch(s4)
     matrix.add_switch(sw1)
 
 def brasse_le_plus_4a(matrix, uplinks):
@@ -110,7 +107,7 @@ def brasse_le_plus_4a(matrix, uplinks):
     p2 = PatchPanel(connector=Port.LC, place=place, u=5, name='', size=24)
     p3 = PatchPanel(connector=Port.LC, place=place, u=7, name='', size=24)
 
-    desks = 57
+    desks = 58
     agg_ports = available_ports(need=desks, devices=(s1, s2, s3, ))
     patch_ports = available_ports(need=desks, devices=(p1, p2, p3, ))
 
