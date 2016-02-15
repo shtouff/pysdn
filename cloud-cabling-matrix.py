@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import math
+
 from pysdn.devices import PatchPanel, Switch, LineCard, Port
 from pysdn.utils import CablingMatrix, available_ports
 
-def brasse_le_moins_2(matrix, p1, po1, po2):
+def brasse_le_moins_2(matrix, po1, po2, downlinks):
     s1 = Switch(place='BETA R-2 right', u=10, name='sw-agg-1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
     s2 = Switch(place='BETA R-2 right', u=11, name='sw-agg-2')
@@ -15,12 +17,9 @@ def brasse_le_moins_2(matrix, p1, po1, po2):
     r2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='sfpplus', size=8))
 
     # we connect agg switches to panels
-    for i in range(0, 9):
-        s1.cards[0].ports[i].connect(p1.ports[2*i])
-        s2.cards[0].ports[i].connect(p1.ports[2*i+1])
-    # only 2 switches on R4b
-    s1.cards[0].ports[8].disconnect()
-    s2.cards[0].ports[8].disconnect()
+    for i in range(0, math.ceil(len(downlinks) / 2)):
+        s1.cards[0].ports[i].connect(downlinks[2*i])
+        s2.cards[0].ports[i].connect(downlinks[2*i+1])
 
     # interco sw-agg
     s1.cards[0].ports[21].connect(s2.cards[0].ports[21])
@@ -191,7 +190,7 @@ def main():
     p1.multi_x_connect(position=7, peer=p3, peerPosition=1, size=6)
     p1.multi_x_connect(position=13, peer=p4, peerPosition=1, size=6)
 
-    brasse_le_moins_2(matrix=m, p1=p1, po1=po1, po2=po2)
+    brasse_le_moins_2(matrix=m, po1=po1, po2=po2, downlinks=(p1.ports[0:6] + p1.ports[6:12] + p1.ports[12:16]))
     brasse_le_plus_3(matrix=m, uplinks=p2.ports)
     brasse_le_plus_4a(matrix=m, uplinks=p3.ports)
     brasse_le_plus_4b(matrix=m, uplinks=p4.ports)
