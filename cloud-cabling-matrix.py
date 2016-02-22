@@ -2,18 +2,20 @@
 
 import math
 
-from pysdn.devices import PatchPanel, Switch, LineCard, Port
-from pysdn.utils import CablingMatrix, available_ports
+from pysdn.devices import PatchPanel, Router, MerakiMS420, MerakiMS220, LineCard, Port
+from pysdn.utils import CablingMatrix, IntercoMatrix, available_ports
+
+from ipaddress import IPv4Network
 
 def brasse_le_moins_2(matrix, po1, po2, downlinks):
-    s1 = Switch(place='BETA R-2 right', u=10, name='sw-agg-1')
+    s1 = MerakiMS420(place='BETA R-2 right', u=10, name='sw-agg-1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = Switch(place='BETA R-2 right', u=11, name='sw-agg-2')
+    s2 = MerakiMS420(place='BETA R-2 right', u=11, name='sw-agg-2')
     s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
 
-    r1 = Switch(place='BETA R-2 right', u=7, name='edge-01')
+    r1 = Router(place='BETA R-2 right', u=7, name='edge-01')
     r1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='sfpplus', size=8))
-    r2 = Switch(place='BETA R-2 right', u=8, name='edge-02')
+    r2 = Router(place='BETA R-2 right', u=8, name='edge-02')
     r2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='sfpplus', size=8))
 
     # we connect agg switches to panels
@@ -39,11 +41,11 @@ def brasse_le_moins_2(matrix, po1, po2, downlinks):
 
 def brasse_le_plus_3(matrix, uplinks):
     place = 'ALPHA R+3'
-    s1 = Switch(place=place, u=9, name='1')
+    s1 = MerakiMS420(place=place, u=9, name='1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = Switch(place=place, u=11, name='2')
+    s2 = MerakiMS420(place=place, u=11, name='2')
     s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s3 = Switch(place=place, u=13, name='3')
+    s3 = MerakiMS420(place=place, u=13, name='3')
     s3.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
 
     s1.cards[0].ports[22].connect(uplinks[0])
@@ -66,7 +68,7 @@ def brasse_le_plus_3(matrix, uplinks):
         agg_ports[i].connect(patch_ports[i])
 
     # patch wifi switch
-    sw1 = Switch(place=place, u=17, name='wifi')
+    sw1 = MerakiMS220(place=place, u=17, name='wifi')
     sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
     agg_ports = available_ports(need=1, devices=(s1, s2, s3, ))
     sw1.cards[0].ports[23].connector = Port.LC
@@ -87,11 +89,11 @@ def brasse_le_plus_3(matrix, uplinks):
 
 def brasse_le_plus_4a(matrix, uplinks):
     place = 'ALPHA R+4a'
-    s1 = Switch(place=place, u=9, name='1')
+    s1 = MerakiMS420(place=place, u=9, name='1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = Switch(place=place, u=11, name='2')
+    s2 = MerakiMS420(place=place, u=11, name='2')
     s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s3 = Switch(place=place, u=13, name='3')
+    s3 = MerakiMS420(place=place, u=13, name='3')
     s3.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
 
     s1.cards[0].ports[22].connect(uplinks[0])
@@ -114,7 +116,7 @@ def brasse_le_plus_4a(matrix, uplinks):
         agg_ports[i].connect(patch_ports[i])
 
     # patch wifi switch
-    sw1 = Switch(place=place, u=15, name='wifi')
+    sw1 = MerakiMS220(place=place, u=15, name='wifi')
     sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
     agg_ports = available_ports(need=1, devices=(s1, s2, s3, ))
     sw1.cards[0].ports[23].connector = Port.LC
@@ -135,9 +137,9 @@ def brasse_le_plus_4a(matrix, uplinks):
 
 def brasse_le_plus_4b(matrix, uplinks):
     place = 'ALPHA R+4b'
-    s1 = Switch(place=place, u=7, name='1')
+    s1 = MerakiMS420(place=place, u=7, name='1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = Switch(place=place, u=9, name='2')
+    s2 = MerakiMS420(place=place, u=9, name='2')
     s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
 
     s1.cards[0].ports[22].connect(uplinks[0])
@@ -157,7 +159,7 @@ def brasse_le_plus_4b(matrix, uplinks):
         agg_ports[i].connect(patch_ports[i])
 
     # patch wifi switch
-    sw1 = Switch(place=place, u=11, name='wifi')
+    sw1 = MerakiMS220(place=place, u=11, name='wifi')
     sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
     agg_ports = available_ports(need=1, devices=(s1, s2, ))
     sw1.cards[0].ports[23].connector = Port.LC
@@ -177,9 +179,9 @@ def brasse_le_plus_4b(matrix, uplinks):
 
 def brasse_le_rdj(matrix, uplinks):
     place = 'ALPHA RDJ'
-    s1 = Switch(place=place, u=7, name='1')
+    s1 = MerakiMS420(place=place, u=7, name='1')
     s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = Switch(place=place, u=9, name='2')
+    s2 = MerakiMS420(place=place, u=9, name='2')
     s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
 
     s1.cards[0].ports[22].connect(uplinks[0])
@@ -199,7 +201,7 @@ def brasse_le_rdj(matrix, uplinks):
         agg_ports[i].connect(patch_ports[i])
 
     # patch wifi switch
-    sw1 = Switch(place=place, u=11, name='wifi')
+    sw1 = MerakiMS220(place=place, u=11, name='wifi')
     sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
     agg_ports = available_ports(need=1, devices=(s1, s2, ))
     sw1.cards[0].ports[23].connector = Port.LC

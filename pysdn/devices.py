@@ -118,7 +118,7 @@ class LineCard(NetworkDevice):
             return '{}/'.format(self.name)
         return ''
 
-class Switch(NetworkDevice):
+class ActiveNetworkDevice(NetworkDevice):
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.place = kwargs['place']
@@ -131,4 +131,19 @@ class Switch(NetworkDevice):
 
     def __str__(self):
         return self.name
+
+class Switch(ActiveNetworkDevice):
+    pass
+
+class Router(ActiveNetworkDevice):
+    pass
+
+class L3Switch(Router, Switch):
+    pass
+
+class MerakiMS420(L3Switch):
+    pass
+
+class MerakiMS220(Switch):
+    pass
 

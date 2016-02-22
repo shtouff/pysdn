@@ -8,10 +8,13 @@ class CablingMatrix(object):
         self.devices = []
 
     def add_switch(self, switch):
-        if not isinstance(switch, Switch):
-            raise Exception('Switch expected')
+        self.add_device(switch)
 
-        self.devices.append(switch)
+    def add_device(self, device):
+        if not isinstance(device, ActiveNetworkDevice):
+            raise Exception('ActiveNetworkDevice expected')
+
+        self.devices.append(device)
 
     def dump(self):
         print('rack;U;switch;port;rack;U;panel;port;<==>;rack;U;panel;port;rack;U;switch;port')
