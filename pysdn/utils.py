@@ -1,5 +1,105 @@
-from pysdn.devices import Switch, Port, PatchPort, PatchPanel
-from pysdn.exceptions import InsufficientAvailablePorts
+from pysdn.devices import ActiveNetworkDevice, L3Switch, Switch, Port, PatchPort, PatchPanel
+from pysdn.exceptions import InsufficientAvailablePorts, InsufficientAvailableIPv4Space, InsufficientAvailableVLANSpace
+
+from ipaddress import IPv4Network
+
+class IntercoMatrix(object):
+
+    ipv4_space = []
+    vlan_space = []
+    seenports = []
+
+    def __init__(self, **kwargs):
+        if 'cabling_matrix' in kwargs:
+            self.set_cabling_matrix(kwargs['cabling_matrix'])
+
+        if 'ipv4_space' in kwargs:
+            self.set_ipv4_space(kwargs['ipv4_space'])
+
+        if 'vlan_space' in kwargs:
+            self.set_vlan_space(kwargs['vlan_space'])
+
+    def set_cabling_matrix(self, cm):
+        if not isinstance(cm, CablingMatrix):
+            raise Exception('CablinMatric expected')
+
+        self.cabling_matrix = cm
+
+    def set_vlan_space(self, vlans):
+        self.vlan_space = vlans
+
+    def add_vlan_space(self, vlan):
+        self.vlan_space.append(vlan)
+
+    def get_next_vlan(self):
+        try:
+            return self.vlan_space.pop(0)
+        except IndexError as e:
+            raise InsufficientAvailableVLANSpace()
+
+    def set_ipv4_space(self, network):
+        if not isinstance(network, IPv4Network):
+            raise Exception('IPv4Network expected')
+
+        self.ipv4_space = []
+        self.add_ipv4_space(network)
+
+    def add_ipv4_space(self, network):
+        if not isinstance(network, IPv4Network):
+            raise Exception('IPv4Network expected')
+
+        for subnet in network.subnets(new_prefix=30):
+            self.ipv4_space.append(subnet)
+
+    def get_next_interco(self):
+        try:
+            return self.ipv4_space.pop(0)
+        except IndexError as e:
+            raise InsufficientAvailableIPv4Space()
+
+    def dump(self):
+        print('rack;U;switch;port;<==>;rack;U;switch;port;interco /30;vlan;ospf active;ospf cost')
+        for device in self.cabling_matrix.devices:
+            if isinstance(device, L3Switch):
+                self.dump_switch(device)
+
+    def dump_switch_port(self, port):
+        if port in self.seenports:
+            return
+        if port.p_port is None:
+            return
+
+        portA = port
+        cardA = portA.owner
+        switchA = cardA.owner
+        ret = '{};U{};{};{}{}'.format(switchA.place, switchA.u, switchA.name, cardA, portA)
+        self.seenports.append(portA)
+
+        if isinstance(portA.p_port, PatchPort):
+            if portA.p_port.x_port is None:
+                return
+            else:
+                portB = portA.p_port.x_port.p_port
+        else:
+            portB = portA.p_port
+
+        cardB = portB.owner
+        switchB = cardB.owner
+
+        if not isinstance(switchB, L3Switch):
+            return
+
+        ret += ';<==>;{};U{};{};{}{}'.format(switchB.place, switchB.u, switchB.name, cardB, portB)
+        self.seenports.append(portB)
+
+        ret += ';{};{};active;10'.format(self.get_next_interco(), self.get_next_vlan())
+
+        print(ret)
+
+    def dump_switch(self, switch):
+        for card in switch.cards:
+            for port in card.ports:
+                self.dump_switch_port(port)
 
 class CablingMatrix(object):
 

@@ -24,3 +24,10 @@ class SelfXConnect(Exception):
 
 class InsufficientAvailablePorts(Exception):
     pass
+
+class InsufficientAvailableIPv4Space(Exception):
+    pass
+
+class InsufficientAvailableVLANSpace(Exception):
+    pass
+

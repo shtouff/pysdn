@@ -250,7 +250,18 @@ def main():
     brasse_le_plus_4b(matrix=m, uplinks=p4.ports)
     brasse_le_rdj(matrix=m, uplinks=p5.ports)
 
-    m.dump()
+    #m.dump()
+
+    im = IntercoMatrix()
+    im.set_cabling_matrix(m)
+
+    for i in range(44, 140, 4):
+        im.add_ipv4_space(IPv4Network('172.16.2.{}/30'.format(i)))
+
+    for i in range(101, 200):
+        im.add_vlan_space(i)
+
+    im.dump()
 
 if __name__ == '__main__':
     main()
