@@ -4,6 +4,16 @@ from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, Insuffici
 from pysdn.exceptions import AlreadyConnected, NotConnected, SelfConnect
 from pysdn.exceptions import AlreadyXConnected, NotXConnected, SelfXConnect
 
+class Rack(object):
+
+    name = None
+
+    def __init__(self, **kwargs):
+        self.name = kwargs['name']
+
+    def __str__(self):
+        return self.name
+
 class Port(object):
 
     LC = 100
@@ -84,7 +94,7 @@ class PatchPanel(NetworkDevice):
         self.base = base
         self.size = kwargs['size']
         self.name = kwargs['name']
-        self.place = kwargs['place']
+        self.rack = kwargs['rack']
         self.u = kwargs['u']
         self.connector = kwargs['connector']
 
@@ -92,6 +102,9 @@ class PatchPanel(NetworkDevice):
         for i in range(0, self.size):
             self.ports.append(PatchPort(connector=self.connector, owner=self,
                 name='port{}'.format(i+self.base)))
+
+        if not isinstance(self.rack, Rack):
+            raise Exception('Rack expected')
 
     def multi_x_connect(self, position, peer, peerPosition, size):
         for i in range(0, size):
