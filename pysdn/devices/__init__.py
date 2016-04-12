@@ -6,10 +6,26 @@ from pysdn.exceptions import AlreadyXConnected, NotXConnected, SelfXConnect
 
 class Rack(object):
 
+    # 47 U
+    DEFAULT_HEIGHT = 47
     name = None
+    u = {}
 
     def __init__(self, **kwargs):
         self.name = kwargs['name']
+
+        if 'height' in kwargs:
+            self.height = kwargs['height']
+        else:
+            self.height = self.DEFAULT_HEIGHT
+
+    def rack(self, device, u, height):
+        for pos in range(u, u+height):
+            if pos in self.u:
+                raise Exception('This rack position is already occupied')
+
+        for pos in range(u, u+height):
+            self.u[pos] = device
 
     def __str__(self):
         return self.name
@@ -95,7 +111,6 @@ class PatchPanel(NetworkDevice):
         self.size = kwargs['size']
         self.name = kwargs['name']
         self.rack = kwargs['rack']
-        self.u = kwargs['u']
         self.connector = kwargs['connector']
 
         self.ports = []
@@ -135,7 +150,6 @@ class ActiveNetworkDevice(NetworkDevice):
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.place = kwargs['place']
-        self.u = kwargs['u']
         self.cards = []
 
     def add_line_card(self, card):
