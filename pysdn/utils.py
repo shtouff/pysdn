@@ -128,7 +128,7 @@ class CablingMatrix(object):
     def dump(self):
         print('rack;U;switch;port;rack;U;panel;port;<==>;rack;U;panel;port;rack;U;switch;port')
         for device in self.devices:
-            if isinstance(device, Switch):
+            if isinstance(device, ActiveNetworkDevice):
                 self.dump_switch(device)
 
     def dump_patch_port(self, port):
@@ -191,7 +191,7 @@ def available_ports(need, devices):
 
     avail = []
     for device in devices:
-        if isinstance(device, Switch):
+        if isinstance(device, ActiveNetworkDevice):
             for card in device.cards:
                 for port in card.ports:
                     if port.p_port is None:

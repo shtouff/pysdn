@@ -3,7 +3,7 @@
 import math
 
 from pysdn.devices import PatchPanel, Router, LineCard, Port, Rack
-from pysdn.devices.Cisco import Nexus3064, Nexus3048, ASR9001
+from pysdn.devices.Cisco import Nexus3064, Nexus3048, ASR9001, SF300
 from pysdn.devices.Opengear import CM4132
 from pysdn.utils import CablingMatrix, IntercoMatrix, available_ports
 
@@ -35,6 +35,8 @@ def brasse_la_baie_telecom():
     r.rack(asr2, u=8, height=2)
 
     # 11: mux
+
+
     # 13: dist1
     nex1 = Nexus3064(name='dist-01')
     nex1.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=1, size=52))
@@ -47,14 +49,26 @@ def brasse_la_baie_telecom():
     r.rack(nex2, u=15, height=1)
 
     # 17-18: arbor
+
     # 20: oob
+    sf = SF300(name='sw-oob')
+    sf.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='fa', base=1, size=24))
+    sf.add_line_card(LineCard(connector=Port.RJ45, name='sfp', portprefix='gi', base=1, size=4))
+    r.rack(sf, u=20, height=1)
+
     # 22: console
+    og = CM4132(name='console')
+    og.add_line_card(LineCard(connector=Port.RJ45, name='serial', portprefix='tty', base=1, size=24))
+    og.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='eth', base=1, size=1))
+    r.rack(og, u=22, height=1)
 
     # 24-25: cuivre
     pc = PatchPanel(connector=Port.RJ45, name='pc', size=48)
     r.rack(pc, u=24, height=2)
 
-    nex1.get_port('console1').connect(pc.ports[1])
+    # brassage console
+    for (port, device) in ( ('tty1', asr1), ('tty2', asr2), ('tty3', nex1), ('tty4', nex2) ):
+        og.get_port(port).connect(device.get_port('console1'))
 
     return r
 
@@ -82,7 +96,7 @@ def brasse_la_baie_serveur():
     r.rack(nex2, u=26, height=1)
 
     nex1.get_port('Eth1/48').connect(nex2.get_port('Eth1/48'))
-    nex1.get_port('Eth1/1').connect(pc.ports[1])
+    #nex1.get_port('Eth1/1').connect(pc.ports[1])
 
     return r
 
