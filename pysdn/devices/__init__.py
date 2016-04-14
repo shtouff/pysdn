@@ -151,7 +151,6 @@ class LineCard(NetworkDevice):
 class ActiveNetworkDevice(NetworkDevice):
     def __init__(self, **kwargs):
         self.name = kwargs['name']
-        self.place = kwargs['place']
         self.cards = []
 
     def add_line_card(self, card):

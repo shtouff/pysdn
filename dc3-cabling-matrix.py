@@ -4,7 +4,7 @@ import math
 
 from pysdn.devices import PatchPanel, Router, LineCard, Port, Rack
 from pysdn.devices.Cisco import Nexus3064, Nexus3048, ASR9001
-from pysdn.devices.Meraki import MS420
+from pysdn.devices.Opengear import CM4132
 from pysdn.utils import CablingMatrix, IntercoMatrix, available_ports
 
 def brasse_la_baie_telecom():
@@ -30,6 +30,17 @@ def brasse_la_baie_serveur():
 
     pc = PatchPanel(connector=Port.RJ45, name='pc', size=24)
     r.rack(pc, u=3, height=1)
+
+    # 23 et 25
+    nex1 = Nexus3048(name='sw-acc-XXX-01')
+    nex1.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=1, size=48))
+    nex1.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=49, size=4))
+    r.rack(nex1, u=23, height=1)
+
+    nex2 = Nexus3048(name='sw-acc-XXX-02')
+    nex2.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=1, size=48))
+    nex2.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=49, size=4))
+    r.rack(nex2, u=25, height=1)
 
     return r
 
