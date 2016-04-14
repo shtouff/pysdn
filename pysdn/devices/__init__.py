@@ -28,10 +28,14 @@ class Rack(object):
             if pos in self.u:
                 raise Exception('This rack position is already occupied')
 
+        du =[]
         for pos in range(u, u+height):
             self.u[pos] = device
+            du.append(pos)
 
         self.devices[device.name] = device
+        device.owner = self
+        device.u = ','.join(map(str,du))
 
     def __str__(self):
         return self.name
@@ -151,11 +155,25 @@ class LineCard(NetworkDevice):
 class ActiveNetworkDevice(NetworkDevice):
     def __init__(self, **kwargs):
         self.name = kwargs['name']
-        self.cards = []
+        self.cards = {}
+        self.ports = {}
 
     def add_line_card(self, card):
-        self.cards.append(card)
+        self.cards[card.name] = card
         card.owner = self
+
+    def get_port(self, name):
+
+        if name in self.ports:
+            return self.ports[name]
+
+        for card in self.cards.values():
+            for port in card.ports:
+                if port.name == name:
+                    self.ports[port.name] = port
+                    return port
+
+        raise Exception('no such port')
 
     def __str__(self):
         return self.name

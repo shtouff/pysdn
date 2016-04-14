@@ -16,113 +16,75 @@ def brasse_la_baie_telecom():
     po = PatchPanel(connector=Port.LC, name='po', size=48)
     r.rack(po, u=1, height=1)
 
-    ## cuivre ##
+    pop = PatchPanel(connector=Port.LC, name='pop', size=24)
+    r.rack(pop, u=3, height=1)
+
+    # 5-6: ASR1
+    asr1 = ASR9001(name='core-01')
+    asr1.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/0/', base=0, size=4))
+    asr1.add_line_card(LineCard(connector=Port.LC, name='Gi0', portprefix='Gi0/0/1/', base=0, size=20))
+    asr1.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/2/', base=0, size=4))
+    asr1.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    r.rack(asr1, u=5, height=2)
+    # 8-9: ASR2
+    asr2 = ASR9001(name='core-02')
+    asr2.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/0/', base=0, size=4))
+    asr2.add_line_card(LineCard(connector=Port.LC, name='Gi0', portprefix='Gi0/0/1/', base=0, size=20))
+    asr2.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/2/', base=0, size=4))
+    asr2.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    r.rack(asr2, u=8, height=2)
+
+    # 11: mux
+    # 13: dist1
+    nex1 = Nexus3064(name='dist-01')
+    nex1.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=1, size=52))
+    nex1.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    r.rack(nex1, u=13, height=1)
+    # 15: dist2
+    nex2 = Nexus3064(name='dist-02')
+    nex2.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=1, size=52))
+    nex2.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    r.rack(nex2, u=15, height=1)
+
+    # 17-18: arbor
+    # 20: oob
+    # 22: console
+
+    # 24-25: cuivre
     pc = PatchPanel(connector=Port.RJ45, name='pc', size=48)
-    r.rack(pc, u=3, height=2)
+    r.rack(pc, u=24, height=2)
+
+    nex1.get_port('console1').connect(pc.ports[1])
 
     return r
 
 def brasse_la_baie_serveur():
     r = Rack(name='DC3/baie-srv2')
 
+    # u1 & u2: patch panels
     po = PatchPanel(connector=Port.LC, name='po', size=24)
     r.rack(po, u=1, height=1)
 
     pc = PatchPanel(connector=Port.RJ45, name='pc', size=24)
-    r.rack(pc, u=3, height=1)
+    r.rack(pc, u=2, height=1)
 
-    # 23 et 25
+    # u24 & u26: nexus 3048 switches
     nex1 = Nexus3048(name='sw-acc-XXX-01')
     nex1.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=1, size=48))
-    nex1.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=49, size=4))
-    r.rack(nex1, u=23, height=1)
+    nex1.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=49, size=4))
+    nex1.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    r.rack(nex1, u=24, height=1)
 
     nex2 = Nexus3048(name='sw-acc-XXX-02')
     nex2.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=1, size=48))
-    nex2.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=49, size=4))
-    r.rack(nex2, u=25, height=1)
+    nex2.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=49, size=4))
+    nex2.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    r.rack(nex2, u=26, height=1)
+
+    nex1.get_port('Eth1/48').connect(nex2.get_port('Eth1/48'))
+    nex1.get_port('Eth1/1').connect(pc.ports[1])
 
     return r
-
-def brasse_le_moins_2(matrix, po1, po2, downlinks):
-    s1 = MerakiMS420(place='BETA R-2 right', u=10, name='sw-agg-1')
-    s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = MerakiMS420(place='BETA R-2 right', u=11, name='sw-agg-2')
-    s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-
-    r1 = Router(place='BETA R-2 right', u=7, name='edge-01')
-    r1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='sfpplus', size=8))
-    r2 = Router(place='BETA R-2 right', u=8, name='edge-02')
-    r2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='sfpplus', size=8))
-
-    # we connect agg switches to panels
-    for i in range(0, math.ceil(len(downlinks) / 2)):
-        s1.cards[0].ports[i].connect(downlinks[2*i])
-        s2.cards[0].ports[i].connect(downlinks[2*i+1])
-
-    # interco sw-agg
-    s1.cards[0].ports[21].connect(s2.cards[0].ports[21])
-
-    # interco mikrotik
-    r1.cards[0].ports[7].connect(r2.cards[0].ports[7])
-
-    # operators
-    r1.cards[0].ports[0].connect(po1.ports[0])
-    r2.cards[0].ports[0].connect(po2.ports[0])
-
-    # add devices to matrix
-    matrix.add_switch(s1)
-    matrix.add_switch(s2)
-    matrix.add_switch(r1)
-    matrix.add_switch(r2)
-
-def brasse_le_plus_3(matrix, uplinks):
-    place = 'ALPHA R+3'
-    s1 = MerakiMS420(place=place, u=9, name='1')
-    s1.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s2 = MerakiMS420(place=place, u=11, name='2')
-    s2.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-    s3 = MerakiMS420(place=place, u=13, name='3')
-    s3.add_line_card(LineCard(connector=Port.LC, name='', portprefix='port', size=24))
-
-    s1.cards[0].ports[22].connect(uplinks[0])
-    s1.cards[0].ports[23].connect(uplinks[1])
-    s2.cards[0].ports[22].connect(uplinks[2])
-    s2.cards[0].ports[23].connect(uplinks[3])
-    s3.cards[0].ports[22].connect(uplinks[4])
-    s3.cards[0].ports[23].connect(uplinks[5])
-
-    # patch desktop switches
-    p1 = PatchPanel(connector=Port.LC, place=place, u=3, name='', size=24)
-    p2 = PatchPanel(connector=Port.LC, place=place, u=5, name='', size=24)
-    p3 = PatchPanel(connector=Port.LC, place=place, u=7, name='', size=24)
-
-    desks = 65
-    agg_ports = available_ports(need=desks, devices=(s1, s2, s3, ))
-    patch_ports = available_ports(need=desks, devices=(p1, p2, p3, ))
-
-    for i in range(0, desks):
-        agg_ports[i].connect(patch_ports[i])
-
-    # patch wifi switch
-    sw1 = MerakiMS220(place=place, u=17, name='wifi')
-    sw1.add_line_card(LineCard(connector=Port.RJ45, name='', portprefix='port', size=24))
-    agg_ports = available_ports(need=1, devices=(s1, s2, s3, ))
-    sw1.cards[0].ports[23].connector = Port.LC
-    sw1.cards[0].ports[23].connect(agg_ports[-1])
-
-    pc1 = PatchPanel(connector=Port.RJ45, place=place, u=20, name='tiroir cuivre', size=24)
-    wifis = 10
-    agg_ports = available_ports(need=wifis, devices=(sw1, ))
-    patch_ports = available_ports(need=wifis, devices=(pc1, ))
-
-    for i in range(0, wifis):
-        agg_ports[i].connect(patch_ports[i])
-
-    matrix.add_switch(s1)
-    matrix.add_switch(s2)
-    matrix.add_switch(s3)
-    matrix.add_switch(sw1)
 
 def main():
     m = CablingMatrix()
@@ -142,9 +104,9 @@ def main():
         o_size += o_off
         c_size += c_off
 
-    #m.add_rack(r1)
-    #m.add_rack(r2)
-    #m.dump()
+    m.add_rack(r1)
+    m.add_rack(r2)
+    m.dump()
 
 if __name__ == '__main__':
     main()
