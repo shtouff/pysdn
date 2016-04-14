@@ -10,6 +10,7 @@ class Rack(object):
     DEFAULT_HEIGHT = 47
     name = None
     u = {}
+    devices = {}
 
     def __init__(self, **kwargs):
         self.name = kwargs['name']
@@ -19,6 +20,9 @@ class Rack(object):
         else:
             self.height = self.DEFAULT_HEIGHT
 
+        self.devices = {}
+        self.u = {}
+
     def rack(self, device, u, height):
         for pos in range(u, u+height):
             if pos in self.u:
@@ -26,6 +30,8 @@ class Rack(object):
 
         for pos in range(u, u+height):
             self.u[pos] = device
+
+        self.devices[device.name] = device
 
     def __str__(self):
         return self.name
@@ -110,16 +116,12 @@ class PatchPanel(NetworkDevice):
         self.base = base
         self.size = kwargs['size']
         self.name = kwargs['name']
-        self.rack = kwargs['rack']
         self.connector = kwargs['connector']
 
         self.ports = []
         for i in range(0, self.size):
             self.ports.append(PatchPort(connector=self.connector, owner=self,
                 name='port{}'.format(i+self.base)))
-
-        if not isinstance(self.rack, Rack):
-            raise Exception('Rack expected')
 
     def multi_x_connect(self, position, peer, peerPosition, size):
         for i in range(0, size):
