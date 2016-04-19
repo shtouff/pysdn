@@ -44,22 +44,6 @@ class Rack(object):
     def __str__(self):
         return self.name
 
-class Transceiver(object):
-
-    GBIC = 200
-    SFP = 201
-    SFPPLUS = 202
-    XFP = 203
-    QSFP = 204
-
-    def known_transceivers():
-        return (Transceiver.GBIC,
-                Transceiver.SFP,
-                Transceiver.SFPPLUS,
-                Transceiver.XFP,
-                Transceiver.QSFP,
-                )
-
 class Connector(object):
 
     # fiber connectors
@@ -73,6 +57,13 @@ class Connector(object):
     # power connector
     C13 = 106
 
+    # transceivers
+    GBIC = 200
+    SFP = 201
+    SFPPLUS = 202
+    XFP = 203
+    QSFP = 204
+
     def known_connectors():
         return (Connector.LC,
                 Connector.SC,
@@ -81,7 +72,20 @@ class Connector(object):
                 Connector.DB9,
                 Connector.DB25,
                 Connector.C13,
+
+                Connector.GBIC,
+                Connector.SFP,
+                Connector.SFPPLUS,
+                Connector.XFP,
+                Connector.QSFP,
                 )
+
+class Transceiver(object):
+
+    compatible_connectors = ()
+
+    def is_compatible(self, connector):
+        return connector in self.compatible_connectors
 
 class Port(object):
 
@@ -93,16 +97,15 @@ class Port(object):
         self.name = kwargs['name']
         self.connector = kwargs['connector']
 
-        if self.connector not in Connector.known_connectors() and\
-                self.connector not in Transceiver.known_transceivers():
+        if self.connector not in Connector.known_connectors():
             raise UnknownConnector()
 
     def set_transceiver(self, transceiver):
         if not isinstance(transceiver, Transceiver):
             raise Exception('Transceiver instance expected')
 
-        if self.connector not in Transceiver.known_transceivers():
-            raise Exception('This port cant have a transceiver')
+        if not transceiver.is_compatible(self.connector):
+            raise Exception('This port cant handle this transceiver')
 
         self.transceiver = transceiver
 

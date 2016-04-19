@@ -22,7 +22,7 @@ class Nexus3048(L3Switch):
             self.add_port(Port(name='Eth1/{}'.format(i), connector=Connector.RJ45))
         # 4xSFP+
         for i in range(48, 52):
-            self.add_port(Port(name='Eth1/{}'.format(i), connector=Transceiver.SFPPLUS))
+            self.add_port(Port(name='Eth1/{}'.format(i), connector=Connector.SFPPLUS))
 
 class ASR9001(Router):
     def __init__(self, **kwargs):
