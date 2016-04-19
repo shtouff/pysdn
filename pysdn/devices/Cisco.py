@@ -1,4 +1,4 @@
-from pysdn.devices import Switch, L3Switch, Router, Port, LineCard, Connector
+from pysdn.devices import Switch, L3Switch, Router, Port, LineCard, Connector, Transceiver
 
 class Nexus3064_X(L3Switch):
     def __init__(self, **kwargs):
@@ -22,7 +22,7 @@ class Nexus3048(L3Switch):
             self.add_port(Port(name='Eth1/{}'.format(i), connector=Connector.RJ45))
         # 4xSFP+
         for i in range(48, 52):
-            self.add_port(Port(name='Eth1/{}'.format(i), connector=Connector.LC))
+            self.add_port(Port(name='Eth1/{}'.format(i), connector=Transceiver.SFPPLUS))
 
 class ASR9001(Router):
     def __init__(self, **kwargs):

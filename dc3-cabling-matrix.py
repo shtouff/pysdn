@@ -3,9 +3,12 @@
 import math
 
 from pysdn.devices import PatchPanel, Router, LineCard, Port, Rack, Connector
+from pysdn.transceivers import SFPPlus
 from pysdn.devices.Cisco import Nexus3064_X, Nexus3048, ASR9001, SF300_24
 from pysdn.devices.Opengear import CM4132
 from pysdn.utils import CablingMatrix, IntercoMatrix, available_ports
+
+from pysdn.cables import UTPCat6Patch, LCLCDuplexPatch
 
 def brasse_la_baie_telecom():
     # creation des racks
@@ -59,7 +62,7 @@ def brasse_la_baie_telecom():
 
     # brassage console
     for (port, device) in ( ('port1', asr1), ('port2', asr2), ('port3', nex1), ('port4', nex2) ):
-        og.get_port(port).connect(device.get_port('console'))
+        og.get_port(port).connect(device.get_port('console'), UTPCat6Patch(length=0.5))
 
     return r
 
@@ -80,8 +83,9 @@ def brasse_la_baie_serveur():
     nex2 = Nexus3048(name='sw-acc-XXX-02')
     r.rack(nex2, u=26, height=1)
 
-    nex1.get_port('Eth1/48').connect(nex2.get_port('Eth1/48'))
-    #nex1.get_port('Eth1/1').connect(pc.ports[1])
+    nex1.get_port('Eth1/48').set_transceiver(SFPPlus())
+    nex2.get_port('Eth1/48').set_transceiver(SFPPlus())
+    nex1.get_port('Eth1/48').connect(nex2.get_port('Eth1/48'), LCLCDuplexPatch())
 
     return r
 

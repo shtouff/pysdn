@@ -6,6 +6,8 @@ from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, Insuffici
 from pysdn.exceptions import AlreadyConnected, NotConnected, SelfConnect
 from pysdn.exceptions import AlreadyXConnected, NotXConnected, SelfXConnect
 
+from pysdn.cables import Cable
+
 class Rack(object):
 
     # 47 U
@@ -50,6 +52,14 @@ class Transceiver(object):
     XFP = 203
     QSFP = 204
 
+    def known_transceivers():
+        return (Transceiver.GBIC,
+                Transceiver.SFP,
+                Transceiver.SFPPLUS,
+                Transceiver.XFP,
+                Transceiver.QSFP,
+                )
+
 class Connector(object):
 
     # fiber connectors
@@ -73,37 +83,44 @@ class Connector(object):
                 Connector.C13,
                 )
 
-#class Cable(object):
-#    __metaclass__ = abc.ABCMeta
-#
-#    @abc.abstractmethod
-#    def __init__(self, **kwargs):
-#        pass
-#
-#class SimplexFiber(Cable):
-#    pass
-#
-#class DuplexFiber(Cable):
-#    pass
-#
-#class RJ45(Cable):
-#    pass
-
 class Port(object):
 
     p_port = None
     owner = None
+    transceiver = None
 
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.connector = kwargs['connector']
 
-        if self.connector not in Connector.known_connectors():
+        if self.connector not in Connector.known_connectors() and\
+                self.connector not in Transceiver.known_transceivers():
             raise UnknownConnector()
 
-    def connect(self, p_port):
+    def set_transceiver(self, transceiver):
+        if not isinstance(transceiver, Transceiver):
+            raise Exception('Transceiver instance expected')
+
+        if self.connector not in Transceiver.known_transceivers():
+            raise Exception('This port cant have a transceiver')
+
+        self.transceiver = transceiver
+
+    def has_transceiver(self):
+        return self.transceiver is not None
+
+    def get_transceiver(self):
+        if self.has_transceiver():
+            return self.transceiver
+        else:
+            raise Exception('no transceiver on this port')
+
+    def connect(self, p_port, cable):
         if not isinstance(p_port, Port):
             raise Exception('Port instance expected')
+
+        if not isinstance(cable, Cable):
+            raise Exception('Cable instance expected')
 
         if self.p_port is not None:
             raise AlreadyConnected('%s => %s'.format(self, self.p_port))
