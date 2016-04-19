@@ -2,10 +2,7 @@
 
 #import abc
 
-from pysdn.exceptions import UnknownConnector, NotCompatibleConnector, InsufficientAvailablePorts
-from pysdn.exceptions import AlreadyConnected, NotConnected, SelfConnect
-from pysdn.exceptions import AlreadyXConnected, NotXConnected, SelfXConnect
-
+from pysdn import exceptions
 from pysdn.cables import Cable
 
 class Rack(object):
@@ -105,7 +102,7 @@ class Port(object):
             raise Exception('Transceiver instance expected')
 
         if not transceiver.is_compatible(self.connector):
-            raise Exception('This port cant handle this transceiver')
+            raise exceptions.CantHandleTransceiver()
 
         self.transceiver = transceiver
 
@@ -126,16 +123,16 @@ class Port(object):
             raise Exception('Cable instance expected')
 
         if self.p_port is not None:
-            raise AlreadyConnected('%s => %s'.format(self, self.p_port))
+            raise exceptions.AlreadyConnected('%s => %s'.format(self, self.p_port))
 
         if p_port.p_port is not None:
-            raise AlreadyConnected('%s => %s'.format(p_port, p_port.p_port))
+            raise exceptions.AlreadyConnected('%s => %s'.format(p_port, p_port.p_port))
 
         if p_port is self:
-            raise SelfConnect()
+            raise exceptions.SelfConnect()
 
         if self.is_fiber() and not p_port.is_fiber() or self.is_copper() and not p_port.is_copper():
-            raise NotCompatibleConnector()
+            raise exceptions.NotCompatibleConnector()
 
         self.p_port = p_port
         p_port.p_port = self

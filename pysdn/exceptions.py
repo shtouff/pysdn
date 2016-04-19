@@ -31,3 +31,6 @@ class InsufficientAvailableIPv4Space(Exception):
 class InsufficientAvailableVLANSpace(Exception):
     pass
 
+class CantHandleTransceiver(Exception):
+    pass
+
