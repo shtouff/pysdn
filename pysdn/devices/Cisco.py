@@ -27,6 +27,8 @@ class Nexus3048(L3Switch):
 class ASR9001(Router):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.height = 2
         self.add_port(Port(connector=Connector.RJ45, name='console'))
         self.add_port(Port(connector=Connector.RJ45, name='aux'))
         self.add_port(Port(connector=Connector.RJ45, name='mgt0'))
