@@ -1,4 +1,4 @@
-from pysdn.devices import ActiveNetworkDevice, L3Switch, Switch, Port, PatchPort, PatchPanel
+from pysdn.devices import ActiveNetworkDevice, L3Switch, Switch, Port, PatchPort, PatchPanel, Rack
 from pysdn.exceptions import InsufficientAvailablePorts, InsufficientAvailableIPv4Space, InsufficientAvailableVLANSpace
 
 from ipaddress import IPv4Network
@@ -72,7 +72,8 @@ class IntercoMatrix(object):
         portA = port
         cardA = portA.owner
         switchA = cardA.owner
-        ret = '{};U{};{};{}{}'.format(switchA.place, switchA.u, switchA.name, cardA, portA)
+        rackA = switchA.owner
+        ret = '{};U{};{};{}{}'.format(rackA, switchA.u, switchA.name, cardA, portA)
         self.seenports.append(portA)
 
         if isinstance(portA.p_port, PatchPort):
@@ -85,11 +86,12 @@ class IntercoMatrix(object):
 
         cardB = portB.owner
         switchB = cardB.owner
+        rackB = switchB.owner
 
         if not isinstance(switchB, L3Switch):
             return
 
-        ret += ';<==>;{};U{};{};{}{}'.format(switchB.place, switchB.u, switchB.name, cardB, portB)
+        ret += ';<==>;{};U{};{};{}{}'.format(rackB, switchB.u, switchB.name, cardB, portB)
         self.seenports.append(portB)
 
         ret += ';{};{};active;10'.format(self.get_next_interco(), self.get_next_vlan())
@@ -116,17 +118,25 @@ class CablingMatrix(object):
 
         self.devices.append(device)
 
+    def add_rack(self, rack):
+        if not isinstance(rack, Rack):
+            raise Exception('Rack expected')
+
+        for device in rack.devices.values():
+            self.devices.append(device)
+
     def dump(self):
         print('rack;U;switch;port;rack;U;panel;port;<==>;rack;U;panel;port;rack;U;switch;port')
         for device in self.devices:
-            if isinstance(device, Switch):
+            if isinstance(device, ActiveNetworkDevice):
                 self.dump_switch(device)
 
     def dump_patch_port(self, port):
 
         portA = port
         panelA = portA.owner
-        print(';{};U{};{};{}'.format(panelA.place, panelA.u, panelA.name, portA), end='')
+        rackA = panelA.owner
+        print(';{};U{};{};{}'.format(rackA, panelA.u, panelA.name, portA), end='')
         print(';<==>', end='')
 
         portB = portA.x_port
@@ -134,7 +144,8 @@ class CablingMatrix(object):
             print(';;;;', end='')
         else:
             panelB = portB.owner
-            print(';{};U{};{};{}'.format(panelB.place, panelB.u, panelB.name, portB), end='')
+            rackB = panelB.owner
+            print(';{};U{};{};{}'.format(rackB, panelB.u, panelB.name, portB), end='')
 
     def dump_switch_port(self, port):
         if port in self.seenports:
@@ -145,7 +156,8 @@ class CablingMatrix(object):
         portA = port
         cardA = portA.owner
         switchA = cardA.owner
-        print('{};U{};{};{}{}'.format(switchA.place, switchA.u, switchA.name, cardA, portA), end='')
+        rackA = switchA.owner
+        print('{};U{};{};{}{}'.format(rackA, switchA.u, switchA.name, cardA, portA), end='')
         self.seenports.append(portA)
 
         if isinstance(portA.p_port, PatchPort):
@@ -162,13 +174,16 @@ class CablingMatrix(object):
             print(';;;;', end='')
             portB = portA.p_port
 
+        if portB is None:
+            raise Exception('this port is not connected')
         cardB = portB.owner
         switchB = cardB.owner
-        print(';{};U{};{};{}{}'.format(switchB.place, switchB.u, switchB.name, cardB, portB))
+        rackB = switchB.owner
+        print(';{};U{};{};{}{}'.format(rackB, switchB.u, switchB.name, cardB, portB))
         self.seenports.append(portB)
 
     def dump_switch(self, switch):
-        for card in switch.cards:
+        for card in switch.cards.values():
             for port in card.ports:
                 self.dump_switch_port(port)
 
@@ -176,7 +191,7 @@ def available_ports(need, devices):
 
     avail = []
     for device in devices:
-        if isinstance(device, Switch):
+        if isinstance(device, ActiveNetworkDevice):
             for card in device.cards:
                 for port in card.ports:
                     if port.p_port is None:
