@@ -83,6 +83,7 @@ def brasse_la_baie_serveur():
     nex2 = Nexus3048(name='sw-acc-XXX-02')
     r.rack(nex2, u=26, height=1)
 
+    # XXX must use a Twinax here ....
     nex1.get_port('Eth1/48').set_transceiver(SFPPlus())
     nex2.get_port('Eth1/48').set_transceiver(SFPPlus())
     nex1.get_port('Eth1/48').connect(nex2.get_port('Eth1/48'), LCLCDuplexPatch())
