@@ -2,73 +2,60 @@
 
 import math
 
-from pysdn.devices import PatchPanel, Router, LineCard, Port, Rack
-from pysdn.devices.Cisco import Nexus3064, Nexus3048, ASR9001, SF300
+from pysdn.devices import PatchPanel, Router, LineCard, Port, Rack, Connector
+from pysdn.devices.Cisco import Nexus3064_X, Nexus3048, ASR9001, SF300_24
 from pysdn.devices.Opengear import CM4132
 from pysdn.utils import CablingMatrix, IntercoMatrix, available_ports
 
 def brasse_la_baie_telecom():
     # creation des racks
-    r = Rack(name='DC3/baie-telecom')
+    r = Rack(name='DC3/4.2/F23')
 
     ## FO ##
     # 96 FO => 48 duplex
-    po = PatchPanel(connector=Port.LC, name='po', size=48)
+    po = PatchPanel(connector=Connector.LC, name='po', size=48)
     r.rack(po, u=1, height=1)
 
-    pop = PatchPanel(connector=Port.LC, name='pop', size=24)
+    pop = PatchPanel(connector=Connector.LC, name='pop', size=24)
     r.rack(pop, u=3, height=1)
 
     # 5-6: ASR1
     asr1 = ASR9001(name='core-01')
-    asr1.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/0/', base=0, size=4))
-    asr1.add_line_card(LineCard(connector=Port.LC, name='Gi0', portprefix='Gi0/0/1/', base=0, size=20))
-    asr1.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/2/', base=0, size=4))
-    asr1.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    asr1.add_module(LineCard(connector=Connector.LC, name='R/SFP', base=0, size=20))
+    asr1.add_module(LineCard(connector=Connector.LC, name='L/XFP', base=0, size=4))
     r.rack(asr1, u=5, height=2)
     # 8-9: ASR2
     asr2 = ASR9001(name='core-02')
-    asr2.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/0/', base=0, size=4))
-    asr2.add_line_card(LineCard(connector=Port.LC, name='Gi0', portprefix='Gi0/0/1/', base=0, size=20))
-    asr2.add_line_card(LineCard(connector=Port.LC, name='Te0', portprefix='Te0/0/2/', base=0, size=4))
-    asr2.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    asr2.add_module(LineCard(connector=Connector.LC, name='R/SFP', base=0, size=20))
+    asr2.add_module(LineCard(connector=Connector.LC, name='L/XFP', base=0, size=4))
     r.rack(asr2, u=8, height=2)
 
     # 11: mux
 
-
     # 13: dist1
-    nex1 = Nexus3064(name='dist-01')
-    nex1.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=1, size=52))
-    nex1.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    nex1 = Nexus3064_X(name='dist-01')
     r.rack(nex1, u=13, height=1)
     # 15: dist2
-    nex2 = Nexus3064(name='dist-02')
-    nex2.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=1, size=52))
-    nex2.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
+    nex2 = Nexus3064_X(name='dist-02')
     r.rack(nex2, u=15, height=1)
 
     # 17-18: arbor
 
     # 20: oob
-    sf = SF300(name='sw-oob')
-    sf.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='fa', base=1, size=24))
-    sf.add_line_card(LineCard(connector=Port.RJ45, name='sfp', portprefix='gi', base=1, size=4))
+    sf = SF300_24(name='sw-oob')
     r.rack(sf, u=20, height=1)
 
     # 22: console
     og = CM4132(name='console')
-    og.add_line_card(LineCard(connector=Port.RJ45, name='serial', portprefix='tty', base=1, size=24))
-    og.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='eth', base=1, size=1))
     r.rack(og, u=22, height=1)
 
     # 24-25: cuivre
-    pc = PatchPanel(connector=Port.RJ45, name='pc', size=48)
+    pc = PatchPanel(connector=Connector.RJ45, name='pc', size=48)
     r.rack(pc, u=24, height=2)
 
     # brassage console
-    for (port, device) in ( ('tty1', asr1), ('tty2', asr2), ('tty3', nex1), ('tty4', nex2) ):
-        og.get_port(port).connect(device.get_port('console1'))
+    for (port, device) in ( ('port1', asr1), ('port2', asr2), ('port3', nex1), ('port4', nex2) ):
+        og.get_port(port).connect(device.get_port('console'))
 
     return r
 
@@ -76,23 +63,17 @@ def brasse_la_baie_serveur():
     r = Rack(name='DC3/baie-srv2')
 
     # u1 & u2: patch panels
-    po = PatchPanel(connector=Port.LC, name='po', size=24)
+    po = PatchPanel(connector=Connector.LC, name='po', size=24)
     r.rack(po, u=1, height=1)
 
-    pc = PatchPanel(connector=Port.RJ45, name='pc', size=24)
+    pc = PatchPanel(connector=Connector.RJ45, name='pc', size=24)
     r.rack(pc, u=2, height=1)
 
     # u24 & u26: nexus 3048 switches
     nex1 = Nexus3048(name='sw-acc-XXX-01')
-    nex1.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=1, size=48))
-    nex1.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=49, size=4))
-    nex1.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
     r.rack(nex1, u=24, height=1)
 
     nex2 = Nexus3048(name='sw-acc-XXX-02')
-    nex2.add_line_card(LineCard(connector=Port.RJ45, name='copper', portprefix='Eth1/', base=1, size=48))
-    nex2.add_line_card(LineCard(connector=Port.LC, name='sfp', portprefix='Eth1/', base=49, size=4))
-    nex2.add_line_card(LineCard(connector=Port.RJ45, name='console', portprefix='console', base=1, size=1))
     r.rack(nex2, u=26, height=1)
 
     nex1.get_port('Eth1/48').connect(nex2.get_port('Eth1/48'))
@@ -120,7 +101,7 @@ def main():
 
     m.add_rack(r1)
     m.add_rack(r2)
-    m.dump()
+#    m.dump()
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,10 @@
-#!/usr/bin/env python3
-
-from pysdn.devices import ActiveNetworkDevice
+from pysdn.devices import ActiveNetworkDevice, LineCard, Port, Connector
 
 class CM4132(ActiveNetworkDevice):
-    pass
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.add_module(LineCard(connector=Connector.RJ45, name='port', base=1, size=32))
+        self.add_port(Port(connector=Connector.RJ45, name='lan'))
+        self.add_port(Port(connector=Connector.DB9, name='local'))
 
