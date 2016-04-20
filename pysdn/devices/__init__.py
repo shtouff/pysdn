@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-#import abc
-
 from pysdn import exceptions
 from pysdn.cables import Cable
 from pysdn.connectors import Connector
