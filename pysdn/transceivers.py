@@ -1,4 +1,11 @@
-from pysdn.devices import Connector, Transceiver
+from pysdn.connectors import Connector
+
+class Transceiver(object):
+
+    compatible_connectors = ()
+
+    def is_compatible(self, connector):
+        return connector in self.compatible_connectors
 
 class LCDuplexTransceiver(Transceiver):
     def __init__(self, **kwargs):

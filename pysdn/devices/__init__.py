@@ -4,85 +4,8 @@
 
 from pysdn import exceptions
 from pysdn.cables import Cable
-
-class Rack(object):
-
-    # 47 U
-    DEFAULT_HEIGHT = 47
-    name = None
-    u = None
-    devices = None
-
-    def __init__(self, **kwargs):
-        self.name = kwargs['name']
-
-        if 'height' in kwargs:
-            self.height = kwargs['height']
-        else:
-            self.height = self.DEFAULT_HEIGHT
-
-        self.devices = {}
-        self.u = {}
-
-    def rack(self, device, u):
-        for pos in range(u, u+device.height):
-            if pos in self.u:
-                raise Exception('This rack position is already occupied')
-
-        du =[]
-        for pos in range(u, u+device.height):
-            self.u[pos] = device
-            du.append(pos)
-
-        self.devices[device.name] = device
-        device.owner = self
-        device.u = ','.join(map(str,du))
-
-    def __str__(self):
-        return self.name
-
-class Connector(object):
-
-    # fiber connectors
-    LC = 100
-    SC = 101
-    FC = 102
-    # copper connectors
-    RJ45 = 103
-    DB9 = 104
-    DB25 = 105
-    # power connector
-    C13 = 106
-
-    # transceivers
-    GBIC = 200
-    SFP = 201
-    SFPPLUS = 202
-    XFP = 203
-    QSFP = 204
-
-    def known_connectors():
-        return (Connector.LC,
-                Connector.SC,
-                Connector.FC,
-                Connector.RJ45,
-                Connector.DB9,
-                Connector.DB25,
-                Connector.C13,
-
-                Connector.GBIC,
-                Connector.SFP,
-                Connector.SFPPLUS,
-                Connector.XFP,
-                Connector.QSFP,
-                )
-
-class Transceiver(object):
-
-    compatible_connectors = ()
-
-    def is_compatible(self, connector):
-        return connector in self.compatible_connectors
+from pysdn.connectors import Connector
+from pysdn.transceivers import Transceiver
 
 class Port(object):
 
@@ -123,10 +46,10 @@ class Port(object):
             raise Exception('Cable instance expected')
 
         if self.p_port is not None:
-            raise exceptions.AlreadyConnected('%s => %s'.format(self, self.p_port))
+            raise exceptions.AlreadyConnected('{} => {}'.format(self, self.p_port))
 
         if p_port.p_port is not None:
-            raise exceptions.AlreadyConnected('%s => %s'.format(p_port, p_port.p_port))
+            raise exceptions.AlreadyConnected('{} => {}'.format(p_port, p_port.p_port))
 
         if p_port is self:
             raise exceptions.SelfConnect()
@@ -161,10 +84,10 @@ class PatchPort(Port):
             raise Exception('PatchPort instance expected')
 
         if self.x_port is not None:
-            raise AlreadyXConnected('%s => %s'.format(self, self.x_port))
+            raise AlreadyXConnected('{} => {}'.format(self, self.x_port))
 
         if x_port.x_port is not None:
-            raise AlreadyXConnected('%s => %s'.format(x_port, x_port.x_port))
+            raise AlreadyXConnected('{} => {}'.format(x_port, x_port.x_port))
 
         if x_port is self:
             raise SelfXConnect()
