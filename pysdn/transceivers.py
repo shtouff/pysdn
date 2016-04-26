@@ -1,25 +1,18 @@
-from pysdn.connectors import Connector
-
-class Transceiver(object):
-
-    compatible_connectors = ()
-
-    def is_compatible(self, connector):
-        return connector in self.compatible_connectors
+from pysdn import Connector, Transceiver, Port
 
 class LCDuplexTransceiver(Transceiver):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.connector = Connector.LC
-        self.rx = None
-        self.tx = None
+        self.rx = pysdn.ports.Port(name='rx', connector=Connector.LC)
+        self.tx = pysdn.ports.Port(name='tx', connector=Connector.LC)
 
 class LCSimplexTransceiver(Transceiver):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.connector = Connector.LC
+        self.port = pysdn.ports.Port(name='port', connector=Connector.LC)
 
 class SFPPlus(LCDuplexTransceiver):
     compatible_connectors = ( Connector.SFPPLUS, )

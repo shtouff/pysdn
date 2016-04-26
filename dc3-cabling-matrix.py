@@ -2,7 +2,8 @@
 
 import math
 
-from pysdn.devices import PatchPanel, Router, LineCard, Port, Connector
+from pysdn import Port, Transceiver, Connector
+from pysdn.devices import PatchPanel, Router, LineCard
 from pysdn.transceivers import SFPPlus
 from pysdn.devices.Cisco import Nexus3064_X, Nexus3048, ASR9001, SF300_24
 from pysdn.devices.Opengear import CM4132

@@ -1,4 +1,5 @@
-from pysdn.devices import Switch, L3Switch, Router, Port, LineCard, Connector, Transceiver
+from pysdn.devices import Switch, L3Switch, Router, LineCard
+from pysdn import Port, Connector, Transceiver
 
 class Nexus3064_X(L3Switch):
     def __init__(self, **kwargs):

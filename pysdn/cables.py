@@ -1,26 +1,20 @@
+from pysdn import Connector, Transceiver, Cable
 
-
-class Cable(object):
-    def __init__(self, **kwargs):
-        if 'length' in kwargs:
-            self.length = kwargs['length']
-        else:
-            self.length = 1
+class CableEndpoint(object):
+    pass
 
 class LCLCDuplexPatch(Cable):
-    pass
+    name = 'lc-lc-duplex'
+
+    def connect(self, A, B):
+        self.a
+
 
 class SCLCDuplexPatch(Cable):
     pass
 
 class UTPCat6Patch(Cable):
-    pass
+    name = 'utp-cat6'
 
-#class SimplexFiber(Cable):
-#    pass
-#
-#class DuplexFiber(Cable):
-#    pass
-#
-#class RJ45(Cable):
-#    pass
+class Twinax(Cable, Transceiver):
+    name = 'twinax'

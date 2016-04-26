@@ -1,5 +1,7 @@
-from pysdn.devices import ActiveNetworkDevice, L3Switch, Switch, Port, PatchPort, PatchPanel
+from pysdn import Port
+from pysdn.ports import PatchPort
 from pysdn.racks import Rack
+from pysdn.devices import ActiveNetworkDevice, L3Switch, Switch, PatchPanel
 from pysdn.exceptions import InsufficientAvailablePorts, InsufficientAvailableIPv4Space, InsufficientAvailableVLANSpace
 
 from ipaddress import IPv4Network

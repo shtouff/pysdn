@@ -1,4 +1,5 @@
-from pysdn.devices import ActiveNetworkDevice, LineCard, Port, Connector
+from pysdn import Port, Connector
+from pysdn.devices import ActiveNetworkDevice, LineCard
 
 class CM4132(ActiveNetworkDevice):
     def __init__(self, **kwargs):
